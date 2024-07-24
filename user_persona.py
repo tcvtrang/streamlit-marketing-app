@@ -2,7 +2,8 @@
 import streamlit as st
 
 def app():
-    st.title('My User Persona Creation!')
+    st.title('User Persona der Zielgruppe')
+    st.write("Hier können Sie eine User Persona für Ihre Zielgruppe erstellen. Es können mehrere User Personas erstellt werden, um verschiedene Zielgruppen abzudecken. Diese Personas können dann für die Erstellung von Werbespots verwendet werden.")
 
     # Eingabefelder für grundlegende Informationen der User Persona
     with st.form(key='user_persona_form'):

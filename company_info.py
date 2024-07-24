@@ -3,6 +3,7 @@ import streamlit as st
 
 def app():
     st.title('Unternehmensinformationen')
+    st.write("Hier können Sie Informationen über Ihr Unternehmen eingeben. Diese Informationen werden verwendet, um den Werbespot an Ihr Unternehmen anzupassen.")
 
     # Eingabefelder für Unternehmensdaten
     with st.form(key='company_info_form'):
@@ -15,7 +16,27 @@ def app():
         ziele = st.text_area("Zielsetzungen der Kampagne")
 
         # Informationen zur Markenpersönlichkeit
-        markenpersoenlichkeit = st.text_area("Markenpersönlichkeit und -werte")
+        # Definieren Sie die Optionen für die Markenpersönlichkeit und -werte
+        optionen = [
+            "Innovativ",
+            "Verlässlich",
+            "Kundenorientiert",
+            "Nachhaltig",
+            "Kreativ",
+            "Traditionell",
+            "Modern",
+            "Qualitätsbewusst",
+            "Preiswert",
+            "Luxuriös",
+            "Authentisch"
+        ]
+
+        # Erstellen Sie eine Dropdown-Funktion mit Mehrfachauswahl
+        markenpersoenlichkeit = st.multiselect(
+            "Markenpersönlichkeit und -werte",
+            options=optionen,
+            default=None
+        )
 
         # Informationen zu Hauptzielgruppen
         hauptzielgruppen = st.text_area("Hauptzielgruppen des Unternehmens")

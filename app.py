@@ -1,10 +1,12 @@
  # Importing required packages
 import streamlit as st
+import Willkommen
+import company_info
 import Werbespot
 import user_persona
-import company_info
 import openai_model
 import data
+import Sonstiges
 # import test123
 # import music_generator
 
@@ -12,9 +14,11 @@ import data
 # and you need to fill in the ID in the assistant.py file
 
 PAGES = {
-    "Werbespot": Werbespot,
-    "User Persona": user_persona,
-    "Company Information": company_info,
+    "Willkommen": Willkommen,
+    "Unternehmensninformationen": company_info,
+    "Informationen zur Erstellung des Werbespot-Skripts": Werbespot,
+    "Persona der Zielgruppe": user_persona,
+    "Sonstiges": Sonstiges,
     "Data": data,
     "OpenAI Model": openai_model,
     # "Test123": test123,
