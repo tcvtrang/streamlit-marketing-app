@@ -12,6 +12,28 @@ def app():
         "1. **Unternehmensinformationen**: Geben Sie Informationen zu Ihrem Unternehmen ein, "
         "wie den Namen, die Branche und die Unternehmensgröße."
     )
+    st.write(
+        "2. **Werbespot**: Erstellen Sie ein Skript für Ihren Werbespot, indem Sie Details zu Ihrem Produkt, "
+        "der Zielgruppe und dem gewünschten Stil angeben."
+    )
+    st.write(
+        "3. **User Persona**: Definieren Sie die Merkmale Ihrer Zielgruppe, wie Alter, Geschlecht und Interessen."
+    )
+    st.write(
+        "4. **Sonstiges**: Geben Sie zusätzliche Informationen an, die für die Erstellung des Werbespots relevant sind."
+    )
+    st.write(
+        "5. Speichern Sie Ihre Daten auf jeder Seite, bevor Sie zur nächsten Seite wechseln."
+    )
+    st.write(
+        "6. Nachdem Sie alle Informationen eingegeben haben, können Sie auf die Seite 'OpenAI' gehen, um ein Skript für Ihren Werbespot zu generieren."
+    )
+    st.write(
+        "7. Den Prompts folgen und die generierten Skripte anpassen, um sie an Ihre Bedürfnisse anzupassen."
+    )
+    st.write(
+        "8. Viel Spaß beim Erstellen Ihres Werbespots!"
+    )
 
     st.subheader('Hinweise')
     st.write(
