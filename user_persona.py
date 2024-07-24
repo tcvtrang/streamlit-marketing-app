@@ -8,7 +8,7 @@ def app():
     with st.form(key='user_persona_form'):
         name = st.text_input("Name der Persona")
         alter = st.slider("Alter", 18, 100, 30)  # Min, Max, Default
-        geschlecht = st.selectbox("Geschlecht", ["Männlich", "Weiblich", "Andere"])
+        geschlecht = st.selectbox("Geschlecht", ["Männlich", "Weiblich", "Divers", "Andere", "Keine Angabe"])
 
         # Psychografische Daten
         interessen = st.text_area("Interessen und Hobbys")

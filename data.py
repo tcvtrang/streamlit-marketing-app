@@ -25,3 +25,25 @@ def app():
         )
     else:
         st.warning("No persona data found. Please create a user persona on 'Page One' first.")
+
+    
+    # Check if werbespot_data is available in session state
+    if 'werbespot_data' in st.session_state:
+        werbespot_data = st.session_state['werbespot_data']
+
+        # Format werbespot data as a plain text string
+        werbespot_data_txt = "\n".join([f"{key}: {value}" for key, value in werbespot_data.items()])
+
+        # Display werbespot data using markdown for better readability
+        st.text("Werbespot")
+        st.markdown(f"```\n{werbespot_data_txt}\n```")
+
+        # Create a button to download the werbespot data as a .txt file
+        st.download_button(
+            label="Download Werbespot Data",
+            data=werbespot_data_txt,
+            file_name='werbespot_data.txt',
+            mime='text/plain',
+        )
+    else:
+        st.warning("No werbespot data found. Please create a werbespot on 'Werbespot' page first.")

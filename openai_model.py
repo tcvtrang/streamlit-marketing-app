@@ -1,21 +1,19 @@
- # Importing required packages
+# openai_model.py
 import streamlit as st
 import openai
 import uuid
 import time
-from openai import OpenAI
 import os
 from dotenv import load_dotenv, find_dotenv
-_ = load_dotenv(find_dotenv())
-from assistant import OPENAI_ASSISTANT
 
+_ = load_dotenv(find_dotenv())
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 def app():
     st.title('OpenAI Model')
 
     # Initialize OpenAI client
-    client = OpenAI()
-
+    client = openai
 
     # Initialize session state variables
     if "session_id" not in st.session_state:
@@ -30,97 +28,61 @@ def app():
     if "retry_error" not in st.session_state:
         st.session_state.retry_error = 0
 
-
-# Initialize OpenAI assistant
     if "assistant" not in st.session_state:
-        openai.api_key = os.getenv('OPENAI_API_KEY')
-        st.session_state.assistant = openai.beta.assistants.retrieve(OPENAI_ASSISTANT)
-        st.session_state.thread = client.beta.threads.create(
-            metadata={'session_id': st.session_state.session_id}
-     )
+        st.session_state.assistant = openai.Completion.create(
+            model="text-davinci-003",
+            prompt="",
+            temperature=0.7,
+            max_tokens=1024,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
 
-# Display chat messages
-    elif hasattr(st.session_state.run, 'status') and st.session_state.run.status == "completed":
-        st.session_state.messages = client.beta.threads.messages.list(
-            thread_id=st.session_state.thread.id
-     )
-        for message in reversed(st.session_state.messages.data):
-            if message.role in ["user", "assistant"]:
-                with st.chat_message(message.role):
-                    for content_part in message.content:
-                        message_text = content_part.text.value
-                        st.markdown(message_text)
-
-
-# Vorbereiten des initialen Prompts
-    if 'persona_data' in st.session_state and 'company_data' in st.session_state:
+    # Vorbereiten des initialen Prompts
+    if 'persona_data' in st.session_state and 'company_data' in st.session_state and 'werbespot_data' in st.session_state:
         persona_data = st.session_state['persona_data']
         company_data = st.session_state['company_data']
+        werbespot_data = st.session_state['werbespot_data']
 
-    # Konvertieren der Daten in einen lesbaren String
+        # Erstellen des COMPASS-Prompts
         persona_str = ", ".join([f"{key}: {value}" for key, value in persona_data.items()])
         company_str = ", ".join([f"{key}: {value}" for key, value in company_data.items()])
+        werbespot_str = ", ".join([f"{key}: {value}" for key, value in werbespot_data.items()])
 
-        initial_prompt = f"Erstelle Werbetext basierend auf der User Persona ({persona_str}) und Unternehmensdaten ({company_str})."
-    else:
-         initial_prompt = "Bitte geben Sie Informationen zur User Persona und zum Unternehmen ein."
-
-# Anzeigen des initialen Prompts
-    st.text_area("Initialer Prompt (kopieren und bei Bedarf bearbeiten):", initial_prompt, height=100)
-
-
-# Chat input and message creation with file ID
-    if prompt := st.chat_input("Wie kann ich Ihnen helfen?"):
-        with st.chat_message('user'):
-            st.write(prompt)
-
-        message_data = {
-            "thread_id": st.session_state.thread.id,
-            "role": "user",
-            "content": prompt
-        }
-
-    # Include file ID in the request if available
-        if "file_id" in st.session_state:
-            message_data["file_ids"] = [st.session_state.file_id]
-
-        st.session_state.messages = client.beta.threads.messages.create(**message_data)
-
-        st.session_state.run = client.beta.threads.runs.create(
-            thread_id=st.session_state.thread.id,
-         assistant_id=st.session_state.assistant.id,
+        compass_prompt = (
+            f"Erstelle ein Werbespot-Skript basierend auf folgenden Informationen:\n\n"
+            f"1. User Persona:\n{persona_str}\n\n"
+            f"2. Unternehmensinformationen:\n{company_str}\n\n"
+            f"3. Werbespot-Details:\n{werbespot_str}\n\n"
+            f"COMPASS:\n"
+            f"C - Context: Die Werbung ist für das Unternehmen {company_data['unternehmensname']} in der Branche {company_data['branche']}.\n"
+            f"O - Objective: Das Ziel der Werbung ist {werbespot_data['ziel_der_werbung']}.\n"
+            f"M - Message: Die Hauptbotschaft ist {werbespot_data['handlung_hauptbotschaft']}.\n"
+            f"P - Performance: Der Werbespot soll auf dem Kanal {werbespot_data['veröffentlichungskanal']} veröffentlicht werden und die Dauer des Spots beträgt {werbespot_data['laenge']} Sekunden.\n"
+            f"A - Audience: Die Zielgruppe des Werbespots umfasst {werbespot_data['zielgruppe']}.\n"
+            f"S - Style: Der Ton und Stil des Werbespots ist {werbespot_data['ton_und_stil']}.\n"
+            f"S - Scope: Der Call to Action im Werbespot ist {werbespot_data['call_to_action']}.\n"
         )
-        if st.session_state.retry_error < 3:
-            time.sleep(1)
-            st.rerun()
 
-# Handle run status
-    if hasattr(st.session_state.run, 'status'):
-        if st.session_state.run.status == "running":
-            placeholder = st.empty()
-            with placeholder.container():
-                with st.chat_message('assistant'):
-                    st.write("Thinking ......")
+        st.text_area("COMPASS Prompt", compass_prompt, height=200)
 
-        elif st.session_state.run.status == "failed":
-            st.session_state.retry_error += 1
-            with st.chat_message('assistant'):
-                if st.session_state.retry_error < 3:
-                    st.write("Run failed, retrying ......")
-                    time.sleep(3)
-                    st.rerun()
-                else:
-                    st.error("FAILED: The OpenAI API is currently processing too many requests. Please try again later ......")
+        if st.button("Skript generieren"):
+            with st.spinner("Das Skript wird generiert..."):
+                response = openai.Completion.create(
+                    model="text-davinci-003",
+                    prompt=compass_prompt,
+                    temperature=0.7,
+                    max_tokens=1024,
+                    top_p=1,
+                    frequency_penalty=0,
+                    presence_penalty=0
+                )
 
-        elif st.session_state.run.status != "completed":
-            st.session_state.run = client.beta.threads.runs.retrieve(
-                thread_id=st.session_state.thread.id,
-                run_id=st.session_state.run.id,
-         )
-            if st.session_state.retry_error < 3:
-                time.sleep(3)
-                st.rerun()
-
+                werbespot_skript = response.choices[0].text.strip()
+                st.text_area("Generiertes Werbespot-Skript", werbespot_skript, height=300)
+    else:
+        st.warning("Bitte geben Sie zuerst Informationen zur User Persona, zum Unternehmen und zum Werbespot ein.")
 
 if __name__ == "__main__":
     app()
